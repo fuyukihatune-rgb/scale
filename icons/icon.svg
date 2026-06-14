@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1a1a1a"/>
+  <g fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 支柱 -->
+    <line x1="256" y1="104" x2="256" y2="372"/>
+    <!-- 梁（てんびんの棒） -->
+    <line x1="128" y1="156" x2="384" y2="156"/>
+    <!-- 左の吊り紐と皿 -->
+    <line x1="128" y1="156" x2="100" y2="214"/>
+    <line x1="128" y1="156" x2="156" y2="214"/>
+    <path d="M100 214 Q128 262 156 214"/>
+    <!-- 右の吊り紐と皿 -->
+    <line x1="384" y1="156" x2="356" y2="214"/>
+    <line x1="384" y1="156" x2="412" y2="214"/>
+    <path d="M356 214 Q384 262 412 214"/>
+    <!-- 台座 -->
+    <path d="M212 400 L300 400 L288 372 L224 372 Z" fill="#ffffff" stroke="none"/>
+  </g>
+  <!-- 支点 -->
+  <circle cx="256" cy="104" r="16" fill="#ffffff"/>
+</svg>
