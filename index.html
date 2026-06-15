@@ -191,12 +191,13 @@
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'scale_v1';
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const VERSION_KEY = 'scale_version';
 const TERMS_VERSION = 1;
 const HASHTAGS = '#予備試験 #司法試験 #勉強記録';
 
 const WHATS_NEW = [
+  "すべての記録をファイルに書き出して保存・復元できる「バックアップ」を追加しました（設定）",
   "Scale をリリースしました。学習時間の記録・科目バランス・過去問の進み具合を、ひとつの画面で。",
 ];
 
@@ -882,6 +883,10 @@ function renderSettings() {
     + '</div>'
     + '<div class="card"><div class="settings-label">アプリの更新</div><div class="settings-desc">いまのバージョンは v' + escHtml(APP_VERSION) + ' です（記録は消えません）。</div>'
     + '<button class="btn-primary" onclick="forceUpdate()">最新の状態にして再読み込み</button></div>'
+    + '<div class="card"><div class="settings-label">バックアップ（書き出し・復元）</div>'
+    + '<div class="settings-desc">すべての記録をファイルに書き出して保存できます。機種変更や故障に備えて、ときどき書き出しておくと安心です。復元すると、今のデータはファイルの内容に置きかわります。</div>'
+    + '<button class="btn-primary" style="width:100%;margin-bottom:8px" onclick="exportBackup()">バックアップを書き出す</button>'
+    + '<label class="btn-secondary" style="display:block;text-align:center;width:100%;cursor:pointer">バックアップから復元<input type="file" accept="application/json,.json" hidden onchange="onBackupFilePick(event)" /></label></div>'
     + '<div class="card"><div class="settings-label">危険な操作</div><div class="settings-desc">すべての記録・科目を消します。取り消せません。</div>'
     + '<button class="btn-danger" onclick="resetApp()">すべてのデータをリセット</button></div>'
     + '<div class="app-foot">Scale v' + escHtml(APP_VERSION) + '<br>司法試験・予備試験 学習記録<br>© 田中志</div>';
@@ -903,6 +908,35 @@ function resetApp() {
   seedSubjectsIfEmpty(); saveState();
   currentTab = 'home'; formView = null; render();
   showToast('リセットしました');
+}
+function exportBackup() {
+  try {
+    var data = {};
+    for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); data[k] = localStorage.getItem(k); }
+    var payload = { app: 'scale', type: 'backup', version: APP_VERSION, exportedAt: new Date().toISOString(), data: data };
+    var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var dt = new Date(); var stamp = '' + dt.getFullYear() + String(dt.getMonth()+1).padStart(2,'0') + String(dt.getDate()).padStart(2,'0');
+    var a = document.createElement('a'); a.href = url; a.download = 'scale-backup-' + stamp + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+    showToast('バックアップを書き出しました');
+  } catch (e) { showToast('書き出しに失敗しました'); }
+}
+function onBackupFilePick(ev) {
+  var file = (ev.target.files || [])[0]; ev.target.value = ''; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function() {
+    var payload; try { payload = JSON.parse(reader.result); } catch (e) { showToast('このファイルは読み込めませんでした'); return; }
+    if (!payload || payload.app !== 'scale' || !payload.data) { showToast('Scaleのバックアップファイルではありません'); return; }
+    if (!confirm('バックアップから復元します。今のデータはファイルの内容に置きかわります。続けますか？')) return;
+    try { Object.keys(payload.data).forEach(function(k){ localStorage.setItem(k, payload.data[k]); }); }
+    catch (e) { showToast('復元に失敗しました'); return; }
+    showToast('復元しました');
+    setTimeout(function(){ location.reload(); }, 600);
+  };
+  reader.onerror = function() { showToast('読み込みに失敗しました'); };
+  reader.readAsText(file);
 }
 
 // ── PWA ────────────────────────────────────────────────────────────────────────

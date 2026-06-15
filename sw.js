@@ -1,5 +1,5 @@
 // バージョンを上げるたびに CACHE_NAME も変えること（= 古いキャッシュが必ず捨てられる）
-const CACHE_NAME = 'scale-1.0.0';
+const CACHE_NAME = 'scale-1.1.0';
 const CACHE_URLS = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
